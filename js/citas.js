@@ -136,6 +136,7 @@ function citaRowHtml(cita) {
       <div class="appt-actions">
         ${botonesEstadoRapido(cita)}
         <button class="btn btn-icon btn-secondary" title="Editar" onclick="abrirModalCita('${cita.id}')">✎</button>
+        <button class="btn btn-icon btn-danger" title="Eliminar" onclick="eliminarCita('${cita.id}')">🗑</button>
       </div>
     </div>`;
 }
@@ -214,7 +215,7 @@ async function renderVistaMes() {
 
   const primerDiaMes = new Date(y, m - 1, 1);
   const inicioGrid = new Date(primerDiaMes);
-  const diaSemanaInicio = primerDiaMes.getDay() === 0 ? 6 : primerDiaMes.getDay() - 1; // lunes=0
+  const diaSemanaInicio = primerDiaMes.getDay() === 0 ? 6 : primerDiaMes.getDay() - 1;
   inicioGrid.setDate(primerDiaMes.getDate() - diaSemanaInicio);
 
   const celdas = Array.from({ length: 42 }, (_, i) => {
@@ -267,7 +268,7 @@ function irADiaDesdeCalendario(iso) {
 }
 
 // ------------------------------------------------------------
-// FILTROS RÁPIDOS DE FECHA (sección 17)
+// FILTROS RÁPIDOS DE FECHA
 // ------------------------------------------------------------
 function filtroRapidoFecha(tipo) {
   const hoy = fechaHoyISO();
@@ -347,8 +348,6 @@ function actualizarInfoServicioCita() {
   }
 }
 
-// Llamado desde clientes.js después de guardar un cliente, si venía
-// del flujo "+ Nuevo cliente" abierto desde el modal de citas.
 async function alGuardarClienteDesdeOtroFlujo(clienteId) {
   const marcador = document.getElementById('cliente-post-guardar-para-cita');
   if (marcador && marcador.value === '1') {
@@ -387,7 +386,6 @@ async function guardarCita(e) {
   const btnGuardar = document.getElementById('cita-submit-btn');
   btnGuardar.disabled = true;
 
-  // 1) Validar contra el horario de atención configurado
   const horario = await obtenerHorarioParaFecha(fecha);
   if (!horario) {
     btnGuardar.disabled = false;
@@ -406,7 +404,6 @@ async function guardarCita(e) {
     }
   }
 
-  // 2) Validar que no exista otra cita en el mismo horario (comprobación en Supabase)
   const { data: citasDelDia, error: errCitas } = await window.db
     .from('citas')
     .select('id, hora_inicio, hora_fin, estado')
@@ -430,7 +427,6 @@ async function guardarCita(e) {
     return mostrarErrorCita('Este horario ya está ocupado.');
   }
 
-  // 3) Guardar
   const payload = {
     cliente_id: clienteId,
     servicio_id: servicioId,
@@ -459,7 +455,7 @@ async function guardarCita(e) {
   mostrarToast(id ? 'Cita actualizada.' : '✓ Cita creada correctamente', 'success');
   cerrarModal('modal-cita');
   renderVistaCitas();
-  if (app.currentSection === 'dashboard') refrescarDashboard();
+  if (window.app && window.app.currentSection === 'dashboard') refrescarDashboard();
 
   function mostrarErrorCita(msg) {
     errorBox.textContent = `⚠ ${msg}`;
@@ -476,14 +472,17 @@ function sumarMinutosAHora(horaStr, minutos) {
 }
 
 async function eliminarCita(id) {
-  const ok = await confirmarAccion('¿Cancelar esta cita? Se marcará como cancelada.', 'Cancelar cita');
+  const ok = await confirmarAccion('¿Eliminar esta cita permanentemente?', 'Eliminar cita');
   if (!ok) return;
 
-  const { error } = await window.db.from('citas').update({ estado: 'cancelada' }).eq('id', id);
-  if (error) { mostrarToast('No se pudo cancelar la cita.', 'error'); return; }
+  const { error } = await window.db.from('citas').delete().eq('id', id);
+  if (error) { 
+    mostrarToast('No se pudo eliminar la cita.', 'error'); 
+    return; 
+  }
 
-  mostrarToast('Cita cancelada.', 'success');
+  mostrarToast('Cita eliminada correctamente.', 'success');
   cerrarModal('modal-cita');
   renderVistaCitas();
-  if (app.currentSection === 'dashboard') refrescarDashboard();
+  if (window.app && window.app.currentSection === 'dashboard') refrescarDashboard();
 }

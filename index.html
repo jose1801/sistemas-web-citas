@@ -345,8 +345,23 @@
             <input type="number" step="0.01" min="0" class="form-input" id="servicio-precio" required>
           </div>
           <div class="form-group">
-            <label class="form-label">Duración (minutos)</label>
-            <input type="number" min="1" class="form-input" id="servicio-duracion" required>
+            <label class="form-label">Duración</label>
+            <div style="display:flex; gap:8px;">
+              <select class="form-select" id="servicio-duracion-horas">
+                <option value="0">0 hrs</option>
+                <option value="1">1 hr</option>
+                <option value="2">2 hrs</option>
+                <option value="3">3 hrs</option>
+                <option value="4">4 hrs</option>
+                <option value="5">5 hrs</option>
+              </select>
+              <select class="form-select" id="servicio-duracion-minutos">
+                <option value="0">00 min</option>
+                <option value="15">15 min</option>
+                <option value="30">30 min</option>
+                <option value="45">45 min</option>
+              </select>
+            </div>
           </div>
         </div>
         <div class="form-group" style="display:flex;align-items:center;gap:10px;">

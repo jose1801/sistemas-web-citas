@@ -1,5 +1,5 @@
 // ============================================================
-// SERVICIOS.JS — CRUD de servicios de belleza
+// SERVICIOS.JS — CRUD de servicios de belleza (Horas/Minutos)
 // ============================================================
 
 const serviciosState = { lista: [] };
@@ -8,6 +8,16 @@ function initServicios() {
   document.getElementById('btn-nuevo-servicio')?.addEventListener('click', () => abrirModalServicio());
   document.getElementById('form-servicio')?.addEventListener('submit', guardarServicio);
   cargarServicios();
+}
+
+function formatearDuracion(totalMinutos) {
+  if (!totalMinutos || totalMinutos <= 0) return '0 min';
+  const hrs = Math.floor(totalMinutos / 60);
+  const mins = totalMinutos % 60;
+
+  if (hrs > 0 && mins > 0) return `${hrs} h ${mins} min`;
+  if (hrs > 0) return `${hrs} h`;
+  return `${mins} min`;
 }
 
 async function cargarServicios() {
@@ -50,7 +60,7 @@ function renderServicios() {
       </div>
       ${s.descripcion ? `<div class="data-card-row" style="justify-content:flex-start;">${escapeHtml(s.descripcion)}</div>` : ''}
       <div class="data-card-row"><span>Precio</span><span>${formatMoney(s.precio)}</span></div>
-      <div class="data-card-row"><span>Duración</span><span>${s.duracion_minutos} min</span></div>
+      <div class="data-card-row"><span>Duración</span><span>${formatearDuracion(s.duracion_minutos)}</span></div>
       <div class="data-card-actions">
         <button class="btn btn-secondary btn-sm" onclick="abrirModalServicio('${s.id}')">Editar</button>
         <button class="btn btn-danger btn-sm" onclick="eliminarServicio('${s.id}')">Eliminar</button>
@@ -65,6 +75,8 @@ function abrirModalServicio(id = null) {
   document.getElementById('servicio-id').value = '';
   document.getElementById('modal-servicio-titulo').textContent = id ? 'Editar servicio' : 'Nuevo servicio';
   document.getElementById('servicio-activo').checked = true;
+  document.getElementById('servicio-duracion-horas').value = '0';
+  document.getElementById('servicio-duracion-minutos').value = '30';
 
   if (id) {
     const s = serviciosState.lista.find((x) => x.id === id);
@@ -73,8 +85,14 @@ function abrirModalServicio(id = null) {
       document.getElementById('servicio-nombre').value = s.nombre;
       document.getElementById('servicio-descripcion').value = s.descripcion || '';
       document.getElementById('servicio-precio').value = s.precio;
-      document.getElementById('servicio-duracion').value = s.duracion_minutos;
       document.getElementById('servicio-activo').checked = s.activo;
+
+      const totalMin = s.duracion_minutos || 0;
+      const hrs = Math.floor(totalMin / 60);
+      const mins = totalMin % 60;
+
+      document.getElementById('servicio-duracion-horas').value = hrs.toString();
+      document.getElementById('servicio-duracion-minutos').value = mins.toString();
     }
   }
   abrirModal('modal-servicio');
@@ -86,17 +104,20 @@ async function guardarServicio(e) {
   const nombre = document.getElementById('servicio-nombre').value.trim();
   const descripcion = document.getElementById('servicio-descripcion').value.trim();
   const precio = parseFloat(document.getElementById('servicio-precio').value);
-  const duracion = parseInt(document.getElementById('servicio-duracion').value, 10);
+  const hrs = parseInt(document.getElementById('servicio-duracion-horas').value, 10) || 0;
+  const mins = parseInt(document.getElementById('servicio-duracion-minutos').value, 10) || 0;
   const activo = document.getElementById('servicio-activo').checked;
+
+  const totalMinutos = (hrs * 60) + mins;
 
   if (!nombre) return mostrarToast('El nombre del servicio es obligatorio.', 'error');
   if (isNaN(precio) || precio < 0) return mostrarToast('Ingresa un precio válido.', 'error');
-  if (isNaN(duracion) || duracion <= 0) return mostrarToast('Ingresa una duración válida en minutos.', 'error');
+  if (totalMinutos <= 0) return mostrarToast('Selecciona una duración mayor a 0 minutos.', 'error');
 
   const btn = document.getElementById('servicio-submit-btn');
   btn.disabled = true;
 
-  const payload = { nombre, descripcion: descripcion || null, precio, duracion_minutos: duracion, activo };
+  const payload = { nombre, descripcion: descripcion || null, precio, duracion_minutos: totalMinutos, activo };
   const query = id
     ? window.db.from('servicios').update(payload).eq('id', id)
     : window.db.from('servicios').insert(payload);

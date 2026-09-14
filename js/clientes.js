@@ -32,7 +32,6 @@ async function cargarClientes() {
   if (tbody) tbody.innerHTML = `<tr><td colspan="6"><div class="loading-row"><div class="spinner spinner-dark"></div> Cargando clientes...</div></td></tr>`;
   if (cards) cards.innerHTML = '';
 
-  // Trae clientes junto con su número de citas y la fecha de la última
   const { data: clientes, error } = await window.db
     .from('clientes')
     .select('*')
@@ -182,27 +181,21 @@ async function guardarCliente(e) {
   cerrarModal('modal-cliente');
   await cargarClientes();
 
-  // Si el cliente se creó desde el flujo "+ Nuevo cliente" dentro del
-  // modal de citas, volvemos a ese modal con el cliente ya seleccionado.
   if (!id && typeof alGuardarClienteDesdeOtroFlujo === 'function') {
     await alGuardarClienteDesdeOtroFlujo(clienteGuardado.id);
   }
 }
 
 async function eliminarCliente(id) {
-  const ok = await confirmarAccion('¿Eliminar este cliente? Esta acción no se puede deshacer.');
+  const ok = await confirmarAccion('¿Eliminar este cliente? Se borrarán también todas sus citas registradas. Esta acción no se puede deshacer.');
   if (!ok) return;
 
   const { error } = await window.db.from('clientes').delete().eq('id', id);
   if (error) {
-    if (error.code === '23503') {
-      mostrarToast('No se puede eliminar: el cliente tiene citas registradas.', 'error');
-    } else {
-      mostrarToast('No se pudo eliminar el cliente.', 'error');
-    }
+    mostrarToast('No se pudo eliminar el cliente.', 'error');
     return;
   }
-  mostrarToast('Cliente eliminado.', 'success');
+  mostrarToast('Cliente eliminado correctamente.', 'success');
   await cargarClientes();
 }
 
