@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Agenda · Panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="app-shell">
+
+  <!-- ============ SIDEBAR (escritorio) ============ -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-mark">A</div>
+      <div class="sidebar-brand-name">Agenda</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-item active" data-section="dashboard"><span class="nav-icon">🏠</span> Inicio</button>
+      <button class="nav-item" data-section="citas"><span class="nav-icon">🗓️</span> Citas</button>
+      <button class="nav-item" data-section="clientes"><span class="nav-icon">👤</span> Clientes</button>
+      <button class="nav-item" data-section="servicios"><span class="nav-icon">💅</span> Servicios</button>
+      <button class="nav-item" data-section="horarios"><span class="nav-icon">⏰</span> Horarios</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="nav-item js-logout"><span class="nav-icon">⏻</span> Cerrar sesión</button>
+    </div>
+  </aside>
+
+  <!-- ============ CONTENIDO PRINCIPAL ============ -->
+  <main class="main-content">
+
+    <!-- Topbar -->
+    <div class="topbar">
+      <div>
+        <h1 class="topbar-title">Hola, <span class="js-admin-nombre">Administradora</span></h1>
+        <div class="topbar-meta">
+          <span class="js-fecha-hoy"></span>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <div class="search-bar" id="buscador-global-wrap" style="position:relative;">
+          <input type="text" id="buscador-global" placeholder="Buscar clientes o citas...">
+          <div id="resultados-busqueda-global" class="hidden" style="position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid var(--color-border);border-radius:14px;box-shadow:var(--shadow-md);max-height:320px;overflow-y:auto;z-index:60;"></div>
+        </div>
+        <button class="avatar-badge js-admin-inicial" title="Tu cuenta">A</button>
+      </div>
+    </div>
+
+    <!-- ============ SECCIÓN: DASHBOARD ============ -->
+    <section class="view-section" data-view="dashboard">
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-card-icon">🗓️</div>
+          <div class="summary-card-value" id="resumen-citas-hoy">0</div>
+          <div class="summary-card-label">Citas de hoy</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-icon">⏳</div>
+          <div class="summary-card-value" id="resumen-pendientes">0</div>
+          <div class="summary-card-label">Citas pendientes</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-icon">✓</div>
+          <div class="summary-card-value" id="resumen-confirmadas">0</div>
+          <div class="summary-card-label">Citas confirmadas</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-card-icon">👤</div>
+          <div class="summary-card-value" id="resumen-clientes">0</div>
+          <div class="summary-card-label">Clientes registrados</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-header">
+          <div>
+            <h2 class="section-title">Próximas citas de hoy</h2>
+            <div class="section-subtitle">Ordenadas por hora</div>
+          </div>
+          <button class="btn btn-primary" id="dashboard-nueva-cita">+ Nueva cita</button>
+        </div>
+        <div class="appt-list" id="proximas-citas-lista"></div>
+      </div>
+    </section>
+
+    <!-- ============ SECCIÓN: CITAS ============ -->
+    <section class="view-section hidden" data-view="citas">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Citas</h2>
+          <div class="section-subtitle">Administra tu calendario de citas</div>
+        </div>
+        <div class="section-actions">
+          <div class="tabs">
+            <button class="tab active js-tab-vista-citas" data-vista="dia">Día</button>
+            <button class="tab js-tab-vista-citas" data-vista="semana">Semana</button>
+            <button class="tab js-tab-vista-citas" data-vista="mes">Mes</button>
+          </div>
+          <button class="btn btn-primary" id="btn-nueva-cita">+ Nueva cita</button>
+        </div>
+      </div>
+
+      <div class="filter-chips">
+        <button class="filter-chip" onclick="filtroRapidoFecha('hoy')">Hoy</button>
+        <button class="filter-chip" onclick="filtroRapidoFecha('manana')">Mañana</button>
+        <button class="filter-chip" onclick="filtroRapidoFecha('semana')">Esta semana</button>
+        <button class="filter-chip" onclick="filtroRapidoFecha('mes')">Este mes</button>
+        <button class="filter-chip js-filtro-cita active" data-filtro="todos">Todas</button>
+        <button class="filter-chip js-filtro-cita" data-filtro="pendiente">Pendientes</button>
+        <button class="filter-chip js-filtro-cita" data-filtro="confirmada">Confirmadas</button>
+        <button class="filter-chip js-filtro-cita" data-filtro="atendida">Atendidas</button>
+        <button class="filter-chip js-filtro-cita" data-filtro="cancelada">Canceladas</button>
+      </div>
+
+      <div class="card">
+        <div class="calendar-nav">
+          <button class="btn btn-icon btn-secondary" id="citas-prev">‹</button>
+          <div class="calendar-nav-label" id="citas-rango-label">—</div>
+          <button class="btn btn-icon btn-secondary" id="citas-next">›</button>
+          <button class="btn btn-secondary btn-sm" id="citas-hoy">Hoy</button>
+        </div>
+
+        <div class="citas-vista" id="citas-vista-dia">
+          <div class="appt-list" id="citas-dia-lista"></div>
+        </div>
+
+        <div class="citas-vista hidden" id="citas-vista-semana">
+          <div class="week-grid" id="citas-semana-grid"></div>
+        </div>
+
+        <div class="citas-vista hidden" id="citas-vista-mes">
+          <div class="calendar-grid" id="citas-mes-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ SECCIÓN: CLIENTES ============ -->
+    <section class="view-section hidden" data-view="clientes">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Clientes</h2>
+          <div class="section-subtitle">Historial y datos de contacto</div>
+        </div>
+        <div class="section-actions">
+          <div class="search-bar"><input type="text" id="clientes-buscador" placeholder="Buscar cliente..."></div>
+          <button class="btn btn-primary" id="btn-nuevo-cliente">+ Nuevo cliente</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr><th>Nombre</th><th>Teléfono</th><th>Correo</th><th>Registro</th><th>Última cita</th><th># Citas</th><th></th></tr>
+            </thead>
+            <tbody id="clientes-tabla-body"></tbody>
+          </table>
+        </div>
+        <div class="data-cards" id="clientes-tarjetas"></div>
+      </div>
+    </section>
+
+    <!-- ============ SECCIÓN: SERVICIOS ============ -->
+    <section class="view-section hidden" data-view="servicios">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Servicios</h2>
+          <div class="section-subtitle">Catálogo de servicios de belleza</div>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-primary" id="btn-nuevo-servicio">+ Nuevo servicio</button>
+        </div>
+      </div>
+
+      <div class="data-cards" id="servicios-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));"></div>
+    </section>
+
+    <!-- ============ SECCIÓN: HORARIOS ============ -->
+    <section class="view-section hidden" data-view="horarios">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Horarios de atención</h2>
+          <div class="section-subtitle">Define tus días y horas disponibles</div>
+        </div>
+        <div class="section-actions">
+          <button class="btn btn-primary" id="btn-guardar-horarios">Guardar cambios</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div id="horarios-lista"></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ BARRA INFERIOR (móvil) ============ -->
+<nav class="bottom-nav">
+  <button class="bottom-nav-item active" data-section="dashboard"><span class="nav-icon">🏠</span>Inicio</button>
+  <button class="bottom-nav-item" data-section="citas"><span class="nav-icon">🗓️</span>Citas</button>
+  <button class="bottom-nav-item" data-section="clientes"><span class="nav-icon">👤</span>Clientes</button>
+  <button class="bottom-nav-item" data-section="servicios"><span class="nav-icon">💅</span>Servicios</button>
+  <button class="bottom-nav-item" data-section="horarios"><span class="nav-icon">⏰</span>Horarios</button>
+</nav>
+
+<button class="fab hidden" onclick="abrirModalCita()">+</button>
+
+<!-- ============ MODAL: CITA ============ -->
+<div class="modal-overlay" id="modal-cita">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-cita-titulo">Nueva cita</h3>
+      <button class="modal-close" data-close-modal="modal-cita">×</button>
+    </div>
+    <form id="form-cita">
+      <div class="modal-body">
+        <input type="hidden" id="cita-id">
+        <input type="hidden" id="cliente-post-guardar-para-cita">
+
+        <div class="inline-alert inline-alert-danger hidden" id="cita-error"></div>
+
+        <div class="form-group">
+          <label class="form-label">Cliente</label>
+          <div class="field-with-btn">
+            <select class="form-select" id="cita-cliente" required></select>
+            <button type="button" class="btn btn-secondary" id="cita-nuevo-cliente-btn">+ Nuevo</button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Servicio</label>
+          <select class="form-select" id="cita-servicio" required></select>
+          <div class="form-hint" id="cita-info-servicio"></div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Fecha</label>
+            <input type="date" class="form-input" id="cita-fecha" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Hora</label>
+            <input type="time" class="form-input" id="cita-hora" required>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Precio</label>
+            <input type="number" step="0.01" min="0" class="form-input" id="cita-precio" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estado</label>
+            <select class="form-select" id="cita-estado">
+              <option value="pendiente">Pendiente</option>
+              <option value="confirmada">Confirmada</option>
+              <option value="atendida">Atendida</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="no_asistio">No asistió</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Observaciones (opcional)</label>
+          <textarea class="form-textarea" id="cita-observaciones" placeholder="Notas sobre la cita..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger hidden" id="cita-eliminar-btn" style="margin-right:auto;">Cancelar cita</button>
+        <button type="button" class="btn btn-secondary" data-close-modal="modal-cita">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="cita-submit-btn">Guardar cita</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: CLIENTE ============ -->
+<div class="modal-overlay" id="modal-cliente">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-cliente-titulo">Nuevo cliente</h3>
+      <button class="modal-close" data-close-modal="modal-cliente">×</button>
+    </div>
+    <form id="form-cliente">
+      <div class="modal-body">
+        <input type="hidden" id="cliente-id">
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-input" id="cliente-nombre" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Teléfono</label>
+            <input type="tel" class="form-input" id="cliente-telefono" placeholder="0999 999 999">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Correo</label>
+            <input type="email" class="form-input" id="cliente-email" placeholder="opcional">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Notas (opcional)</label>
+          <textarea class="form-textarea" id="cliente-notas" placeholder="Alergias, preferencias, etc."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal="modal-cliente">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="cliente-submit-btn">Guardar cliente</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: SERVICIO ============ -->
+<div class="modal-overlay" id="modal-servicio">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modal-servicio-titulo">Nuevo servicio</h3>
+      <button class="modal-close" data-close-modal="modal-servicio">×</button>
+    </div>
+    <form id="form-servicio">
+      <div class="modal-body">
+        <input type="hidden" id="servicio-id">
+        <div class="form-group">
+          <label class="form-label">Nombre</label>
+          <input type="text" class="form-input" id="servicio-nombre" placeholder="Manicure" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción (opcional)</label>
+          <textarea class="form-textarea" id="servicio-descripcion"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Precio</label>
+            <input type="number" step="0.01" min="0" class="form-input" id="servicio-precio" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Duración (minutos)</label>
+            <input type="number" min="1" class="form-input" id="servicio-duracion" required>
+          </div>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;">
+          <label class="switch"><input type="checkbox" id="servicio-activo" checked><span class="switch-slider"></span></label>
+          <span class="form-label" style="margin:0;">Servicio activo</span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-close-modal="modal-servicio">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="servicio-submit-btn">Guardar servicio</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ MODAL: HISTORIAL DE CLIENTE ============ -->
+<div class="modal-overlay" id="modal-historial-cliente">
+  <div class="modal" style="max-width:640px;">
+    <div class="modal-header">
+      <h3 class="modal-title">Historial de <span id="historial-cliente-nombre"></span></h3>
+      <button class="modal-close" data-close-modal="modal-historial-cliente">×</button>
+    </div>
+    <div class="modal-body" id="historial-cliente-body"></div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" data-close-modal="modal-historial-cliente">Cerrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: CONFIRMACIÓN GENÉRICA ============ -->
+<div class="modal-overlay" id="modal-confirmar">
+  <div class="modal" style="max-width:380px;">
+    <div class="modal-body" style="padding-top:26px;">
+      <p id="confirmar-mensaje" style="margin:0;"></p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" id="confirmar-btn-cancelar">Cancelar</button>
+      <button type="button" class="btn btn-danger" id="confirmar-btn-ok">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOASTS ============ -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/citas.js"></script>
+<script src="js/clientes.js"></script>
+<script src="js/servicios.js"></script>
+<script src="js/horarios.js"></script>
+</body>
+</html>

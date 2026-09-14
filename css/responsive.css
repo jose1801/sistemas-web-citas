@@ -1,0 +1,121 @@
+/* ============================================================
+   RESPONSIVE — tablet y móvil
+   ============================================================ */
+
+/* --- TABLET --- */
+@media (max-width: 1024px) {
+  .summary-grid { grid-template-columns: repeat(2, 1fr); }
+  .sidebar { width: 200px; }
+  .main-content { padding: 22px 22px 100px; }
+  .form-row { grid-template-columns: 1fr; }
+}
+
+/* --- MÓVIL --- */
+@media (max-width: 720px) {
+  .app-shell { flex-direction: column; }
+
+  /* La barra lateral se oculta; navegación pasa a la barra inferior */
+  .sidebar { display: none; }
+
+  .main-content { padding: 16px 14px 96px; }
+
+  .topbar { margin-bottom: 18px; }
+  .topbar-title { font-size: 20px; }
+  .topbar-meta { display: none; }
+
+  .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .summary-card { padding: 15px; }
+  .summary-card-value { font-size: 24px; }
+
+  .section-header { flex-direction: column; align-items: stretch; }
+  .section-actions { justify-content: space-between; }
+  .search-bar { max-width: none; }
+
+  /* Tablas -> tarjetas */
+  .table-wrap { display: none; }
+  .data-cards { display: flex; }
+
+  .appt-row {
+    grid-template-columns: 56px 1fr;
+    grid-template-areas: "time info" "actions actions";
+    row-gap: 8px;
+  }
+  .appt-time { grid-area: time; font-size: 14px; }
+  .appt-info { grid-area: info; }
+  .appt-price { display: none; }
+  .appt-actions { grid-area: actions; justify-content: flex-end; }
+
+  .form-row { grid-template-columns: 1fr; }
+
+  .modal { max-height: 100vh; height: 100%; max-width: none; border-radius: 0; }
+  .modal-overlay { padding: 0; }
+
+  .calendar-day { min-height: 46px; }
+  .week-grid { grid-template-columns: 1fr; }
+  .week-col-header { text-align: left; }
+
+  .horario-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "day switch" "times times";
+    row-gap: 8px;
+  }
+  .horario-day-name { grid-area: day; }
+  .horario-row > .switch { grid-area: switch; justify-self: end; }
+  .horario-row > .horario-times { grid-area: times; display: flex; gap: 10px; flex-wrap: wrap; }
+
+  /* Barra inferior de navegación */
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+    justify-content: space-around;
+    z-index: 50;
+  }
+
+  .bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border: none;
+    color: var(--color-text-muted);
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+
+  .bottom-nav-item .nav-icon { font-size: 19px; }
+  .bottom-nav-item.active { color: var(--color-primary-dark); }
+
+  /* Botón flotante para nueva cita */
+  .fab {
+    display: flex;
+    position: fixed;
+    right: 16px;
+    bottom: 78px;
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    color: #fff;
+    align-items: center;
+    justify-content: center;
+    font-size: 26px;
+    border: none;
+    box-shadow: var(--shadow-lg);
+    z-index: 49;
+    cursor: pointer;
+  }
+
+  .toast-container { left: 14px; right: 14px; bottom: 90px; align-items: stretch; }
+  .toast { max-width: none; }
+}
+
+@media (max-width: 380px) {
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+}
